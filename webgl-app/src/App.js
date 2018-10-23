@@ -14,8 +14,32 @@ class App extends Component {
 
         this.animationButton = createRef();
         this.animationCanvas = createRef();
+        this.drawingCanvas = createRef();
+        this.drawSecondCanvas = createRef();
+        this.getWebGl = this.getWebGl.bind(this);
         this.toggleAnimationStatus = this.toggleAnimationStatus.bind(this);
         this.runAnimation = this.runAnimation.bind(this);
+        this.drawSquares = this.drawSquares.bind(this);
+    }
+
+    componentDidMount() {
+        this.drawSquares();
+    }
+
+    getWebGl(canvas, noWebGlCb) {
+        let result = canvas.getContext('webgl') || canvas.getContext('experimental-webgl');
+
+        if (!result) {
+            noWebGlCb && noWebGlCb();
+            this.setState({
+                errorMessage: `Failed to get WebGL context.\n Your browser or device may not support WebGL.`
+            });
+            return;
+        }
+
+        result.viewport(0, 0, result.drawingBufferWidth, result.drawingBufferHeight);
+
+        return result;
     }
 
     toggleAnimationStatus() {
@@ -25,7 +49,7 @@ class App extends Component {
     }
 
     runAnimation() {
-        const canvas = this.animationCanvas.current;
+        const animationCanvas = this.animationCanvas.current;
         let timer = null;
         let webgl;
 
@@ -34,19 +58,7 @@ class App extends Component {
 
         const drawAnimation = () => {
             if (this.state.animationStart) {
-                if (!webgl) {
-                    webgl = canvas.getContext('webgl') || canvas.getContext('experimental-webgl');
-
-                    if (!webgl) {
-                        clearTimer();
-                        this.setState({
-                            errorMessage: `Failed to get WebGL context.\n Your browser or device may not support WebGL.`
-                        });
-                        return;
-                    }
-
-                    webgl.viewport(0, 0, webgl.drawingBufferWidth, webgl.drawingBufferHeight);
-                }
+                webgl = this.getWebGl(animationCanvas, clearTimer);
 
                 webgl.clearColor(Math.random(), Math.random(), Math.random(), 1.0);
                 webgl.clear(webgl.COLOR_BUFFER_BIT)
@@ -64,6 +76,24 @@ class App extends Component {
         }
     }
 
+    drawSquares() {
+        const drawCanvas = this.drawingCanvas.current;
+        const drawSecondCanvas = this.drawSecondCanvas.current;
+
+        drawCanvas.width = drawCanvas.clientWidth;
+        drawCanvas.height = drawCanvas.clientHeight;
+
+        [drawCanvas, drawSecondCanvas].forEach(item => {
+            let rendingContext = this.getWebGl(item);
+
+            rendingContext.enable(rendingContext.SCISSOR_TEST);
+            rendingContext.scissor(40, 20, 60, 130);
+
+            rendingContext.clearColor(1.0, 1.0, 0.0, 1.0);
+            rendingContext.clear(rendingContext.COLOR_BUFFER_BIT);
+        });
+    };
+
     render() {
         const animationBlock = (
             <Fragment>
@@ -74,7 +104,6 @@ class App extends Component {
                 <Button
                     variant="contained"
                     color="primary"
-                    id="animation-onoff"
                     ref={this.animationButton}
                     onClick={() => this.runAnimation()}
                 >
@@ -95,7 +124,21 @@ class App extends Component {
                             You can click the button below to toggle the color animation on or off.
                         </p>
 
-                        {this.state.errorMessage ? <p>{this.state.errorMessage}</p> : animationBlock}
+                        <section>
+                            {this.state.errorMessage ? <p>{this.state.errorMessage}</p> : animationBlock}
+                        </section>
+
+                        <section>
+                            <canvas ref={this.drawingCanvas}>
+                                Your browser does not seem to support HTML5 canvas.
+                            </canvas>
+                        </section>
+
+                        <section>
+                            <canvas ref={this.drawSecondCanvas}>
+                                Your browser does not seem to support HTML5 canvas.
+                            </canvas>
+                        </section>
                     </main>
                 </div>
             </Fragment>

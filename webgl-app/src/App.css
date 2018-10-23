@@ -23,13 +23,17 @@
 }
 
 canvas {
-  display : block;
-  width : 280px;
-  height : 210px;
-  margin : auto;
-  padding : 0;
-  border : none;
-  background-color : black;
+  display: block;
+  width: 280px;
+  height: 210px;
+  margin: auto;
+  padding: 0;
+  border: none;
+  background-color: black;
+}
+
+section {
+  margin: 1em 0;
 }
 
 @keyframes App-logo-spin {
