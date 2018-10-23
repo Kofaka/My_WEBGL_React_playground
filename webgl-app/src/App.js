@@ -9,6 +9,7 @@ class App extends Component {
 
         this.state = {
             animationStart: false,
+            errorMessage: '',
         };
 
         this.animationButton = createRef();
@@ -38,7 +39,9 @@ class App extends Component {
 
                     if (!webgl) {
                         clearTimer();
-                        console.log(`Failed to get WebGL context.\n Your browser or device may not support WebGL.`);
+                        this.setState({
+                            errorMessage: `Failed to get WebGL context.\n Your browser or device may not support WebGL.`
+                        });
                         return;
                     }
 
@@ -62,6 +65,24 @@ class App extends Component {
     }
 
     render() {
+        const animationBlock = (
+            <Fragment>
+                <canvas ref={this.animationCanvas}>
+                    Your browser does not seem to support HTML5 canvas.
+                </canvas>
+
+                <Button
+                    variant="contained"
+                    color="primary"
+                    id="animation-onoff"
+                    ref={this.animationButton}
+                    onClick={() => this.runAnimation()}
+                >
+                    Press here to {(this.state.animationStart) ? 'stop' : 'start'} the animation
+                </Button>
+            </Fragment>
+        );
+
         return (
             <Fragment>
                 <div className="App">
@@ -74,19 +95,7 @@ class App extends Component {
                             You can click the button below to toggle the color animation on or off.
                         </p>
 
-                        <canvas ref={this.animationCanvas}>
-                            Your browser does not seem to support HTML5 canvas.
-                        </canvas>
-
-                        <Button
-                            variant="contained"
-                            color="primary"
-                            id="animation-onoff"
-                            ref={this.animationButton}
-                            onClick={() => this.runAnimation()}
-                        >
-                            Press here to {(this.state.animationStart) ? 'stop' : 'start'} the animation
-                        </Button>
+                        {this.state.errorMessage ? <p>{this.state.errorMessage}</p> : animationBlock}
                     </main>
                 </div>
             </Fragment>
