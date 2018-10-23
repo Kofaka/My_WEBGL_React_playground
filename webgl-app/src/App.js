@@ -16,6 +16,7 @@ class App extends Component {
         this.animationCanvas = createRef();
         this.drawingCanvas = createRef();
         this.drawSecondCanvas = createRef();
+        this.getRandomColor = this.getRandomColor.bind(this);
         this.getWebGl = this.getWebGl.bind(this);
         this.toggleAnimationStatus = this.toggleAnimationStatus.bind(this);
         this.runAnimation = this.runAnimation.bind(this);
@@ -25,6 +26,10 @@ class App extends Component {
     componentDidMount() {
         this.drawSquares();
     }
+
+    getRandomColor() {
+        return [Math.random(), Math.random(), Math.random()];
+    };
 
     getWebGl(canvas, noWebGlCb) {
         let result = canvas.getContext('webgl') || canvas.getContext('experimental-webgl');
@@ -59,8 +64,7 @@ class App extends Component {
         const drawAnimation = () => {
             if (this.state.animationStart) {
                 webgl = this.getWebGl(animationCanvas, clearTimer);
-
-                webgl.clearColor(Math.random(), Math.random(), Math.random(), 1.0);
+                webgl.clearColor(...this.getRandomColor(), 1.0);
                 webgl.clear(webgl.COLOR_BUFFER_BIT)
             }
         };
