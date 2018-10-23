@@ -3,33 +3,37 @@ import Button from '@material-ui/core/Button';
 
 import './App.css';
 
+const getRandomColor = () => [Math.random(), Math.random(), Math.random()];
+const setTimer = (timer, cb, interval = 500) => setInterval(cb, interval);
+const clearTimer = (timer) => clearInterval(timer);
+
 class App extends Component {
     constructor(props) {
         super(props);
 
         this.state = {
             animationStart: false,
+            rectanglesAnimationStart: false,
             errorMessage: '',
         };
 
         this.animationButton = createRef();
+        this.drawThirdCanvasAnimationButton = createRef();
         this.animationCanvas = createRef();
         this.drawingCanvas = createRef();
         this.drawSecondCanvas = createRef();
-        this.getRandomColor = this.getRandomColor.bind(this);
+        this.drawThirdCanvas = createRef();
         this.getWebGl = this.getWebGl.bind(this);
         this.toggleAnimationStatus = this.toggleAnimationStatus.bind(this);
+        this.toggleRectanglesAnimationStatus = this.toggleRectanglesAnimationStatus.bind(this);
         this.runAnimation = this.runAnimation.bind(this);
+        this.animateRectangles = this.animateRectangles.bind(this);
         this.drawSquares = this.drawSquares.bind(this);
     }
 
     componentDidMount() {
         this.drawSquares();
     }
-
-    getRandomColor() {
-        return [Math.random(), Math.random(), Math.random()];
-    };
 
     getWebGl(canvas, noWebGlCb) {
         let result = canvas.getContext('webgl') || canvas.getContext('experimental-webgl');
@@ -53,29 +57,32 @@ class App extends Component {
         });
     }
 
+    toggleRectanglesAnimationStatus() {
+        this.setState({
+            rectanglesAnimationStart: !this.state.rectanglesAnimationStart
+        });
+    }
+
     runAnimation() {
         const animationCanvas = this.animationCanvas.current;
         let timer = null;
         let webgl;
 
-        const setTimer = () => timer = setInterval(drawAnimation, 500);
-        const clearTimer = () => clearInterval(timer);
-
         const drawAnimation = () => {
             if (this.state.animationStart) {
                 webgl = this.getWebGl(animationCanvas, clearTimer);
-                webgl.clearColor(...this.getRandomColor(), 1.0);
+                webgl.clearColor(...getRandomColor(), 1.0);
                 webgl.clear(webgl.COLOR_BUFFER_BIT)
             }
         };
 
         if (this.state.animationStart) {
             this.toggleAnimationStatus();
-            clearTimer();
+            clearTimer(timer);
 
         } else if (!this.state.animationStart) {
             this.toggleAnimationStatus();
-            setTimer();
+            setTimer(timer, drawAnimation);
             drawAnimation();
         }
     }
@@ -97,6 +104,49 @@ class App extends Component {
             renderingContext.clear(renderingContext.COLOR_BUFFER_BIT);
         });
     };
+
+    animateRectangles() {
+        const drawThirdCanvas = this.drawThirdCanvas.current;
+        let webgl = this.getWebGl(drawThirdCanvas);
+        let color = getRandomColor();
+        let position = null;
+        let timer = null;
+
+        webgl.enable(webgl.SCISSOR_TEST);
+        webgl.clearColor(...color, 1.0);
+        position = [0, webgl.drawingBufferHeight];
+
+        const drawAnimation = () => {
+            let rectangleSize = [60,60];
+            let rectangleVelocity = 3.0;
+
+            if (this.state.rectanglesAnimationStart) {
+                webgl.scissor(...position, ...rectangleSize);
+                webgl.clear(webgl.COLOR_BUFFER_BIT);
+
+                position[1] -= rectangleVelocity;
+
+                if (position[1] < 0) {
+                    position = [
+                        Math.random() * webgl.drawingBufferWidth - rectangleSize[0],
+                        webgl.drawingBufferHeight,
+                    ];
+                    rectangleVelocity = 1.0 + 6.0 * Math.random();
+                    webgl.clearColor(...getRandomColor(), 1.0);
+                }
+            }
+        };
+
+        if (this.state.rectanglesAnimationStart) {
+            this.toggleRectanglesAnimationStatus();
+            clearTimer(timer);
+
+        } else if (!this.state.rectanglesAnimationStart) {
+            this.toggleRectanglesAnimationStatus();
+            setTimer(timer, drawAnimation, 17);
+            drawAnimation();
+        }
+    }
 
     render() {
         const animationBlock = (
@@ -142,6 +192,21 @@ class App extends Component {
                             <canvas ref={this.drawSecondCanvas}>
                                 Your browser does not seem to support HTML5 canvas.
                             </canvas>
+                        </section>
+
+                        <section>
+                            <canvas ref={this.drawThirdCanvas}>
+                                Your browser does not seem to support HTML5 canvas.
+                            </canvas>
+
+                            <Button
+                                variant="contained"
+                                color="primary"
+                                ref={this.drawThirdCanvasAnimationButton}
+                                onClick={() => this.animateRectangles()}
+                            >
+                                Press here to {(this.state.rectanglesAnimationStart) ? 'stop' : 'start'} the animation
+                            </Button>
                         </section>
                     </main>
                 </div>
