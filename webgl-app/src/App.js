@@ -88,13 +88,13 @@ class App extends Component {
         drawCanvas.height = drawCanvas.clientHeight;
 
         [drawCanvas, drawSecondCanvas].forEach(item => {
-            let rendingContext = this.getWebGl(item);
+            let renderingContext = this.getWebGl(item);
 
-            rendingContext.enable(rendingContext.SCISSOR_TEST);
-            rendingContext.scissor(40, 20, 60, 130);
+            renderingContext.enable(renderingContext.SCISSOR_TEST);
+            renderingContext.scissor(40, 20, 60, 130);
 
-            rendingContext.clearColor(1.0, 1.0, 0.0, 1.0);
-            rendingContext.clear(rendingContext.COLOR_BUFFER_BIT);
+            renderingContext.clearColor(1.0, 1.0, 0.0, 1.0);
+            renderingContext.clear(renderingContext.COLOR_BUFFER_BIT);
         });
     };
 
