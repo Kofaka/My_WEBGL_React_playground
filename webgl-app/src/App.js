@@ -421,52 +421,50 @@ class App extends Component {
         );
 
         return (
-            <Fragment>
-                <div className="App">
-                    <header className="App-header">
-                        A simple WebGL program that shows color animation.
-                    </header>
+            <div className="App">
+                <header className="App-header">
+                    A simple WebGL program that shows color animation.
+                </header>
 
-                    <main>
-                        <section>
-                            <canvas ref={this.cubeCanvas} width="640" height="480">
-                                Your browser does not seem to support HTML5 canvas.
-                            </canvas>
-                        </section>
+                <main>
+                    <section>
+                        <canvas ref={this.cubeCanvas} width="640" height="480">
+                            Your browser does not seem to support HTML5 canvas.
+                        </canvas>
+                    </section>
 
-                        <section>
-                            <canvas ref={this.drawThirdCanvas}>
-                                Your browser does not seem to support HTML5 canvas.
-                            </canvas>
+                    <section>
+                        <canvas ref={this.drawThirdCanvas}>
+                            Your browser does not seem to support HTML5 canvas.
+                        </canvas>
 
-                            <Button
-                                variant="contained"
-                                color="primary"
-                                ref={this.drawThirdCanvasAnimationButton}
-                                onClick={() => this.animateRectangles()}
-                            >
-                                Press here to {(this.state.rectanglesAnimationStart) ? 'stop' : 'start'} the animation
-                            </Button>
-                        </section>
+                        <Button
+                            variant="contained"
+                            color="primary"
+                            ref={this.drawThirdCanvasAnimationButton}
+                            onClick={() => this.animateRectangles()}
+                        >
+                            Press here to {(this.state.rectanglesAnimationStart) ? 'stop' : 'start'} the animation
+                        </Button>
+                    </section>
 
-                        <section>
-                            <canvas ref={this.drawSecondCanvas}>
-                                Your browser does not seem to support HTML5 canvas.
-                            </canvas>
-                        </section>
+                    <section>
+                        <canvas ref={this.drawSecondCanvas}>
+                            Your browser does not seem to support HTML5 canvas.
+                        </canvas>
+                    </section>
 
-                        <section>
-                            <canvas ref={this.drawingCanvas}>
-                                Your browser does not seem to support HTML5 canvas.
-                            </canvas>
-                        </section>
+                    <section>
+                        <canvas ref={this.drawingCanvas}>
+                            Your browser does not seem to support HTML5 canvas.
+                        </canvas>
+                    </section>
 
-                        <section>
-                            {this.state.errorMessage ? <p>{this.state.errorMessage}</p> : animationBlock}
-                        </section>
-                    </main>
-                </div>
-            </Fragment>
+                    <section>
+                        {this.state.errorMessage ? <p>{this.state.errorMessage}</p> : animationBlock}
+                    </section>
+                </main>
+            </div>
         );
     }
 }
