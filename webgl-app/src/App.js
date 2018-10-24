@@ -112,6 +112,8 @@ class App extends Component {
         let position = null;
         let timer = null;
 
+        if (!webgl) return;
+
         webgl.enable(webgl.SCISSOR_TEST);
         webgl.clearColor(...color, 1.0);
         position = [0, webgl.drawingBufferHeight];
@@ -151,6 +153,7 @@ class App extends Component {
     render() {
         const animationBlock = (
             <Fragment>
+                <p>You can click the button below to toggle the color animation on or off.</p>
                 <canvas ref={this.animationCanvas}>
                     Your browser does not seem to support HTML5 canvas.
                 </canvas>
@@ -174,26 +177,6 @@ class App extends Component {
                     </header>
 
                     <main>
-                        <p>
-                            You can click the button below to toggle the color animation on or off.
-                        </p>
-
-                        <section>
-                            {this.state.errorMessage ? <p>{this.state.errorMessage}</p> : animationBlock}
-                        </section>
-
-                        <section>
-                            <canvas ref={this.drawingCanvas}>
-                                Your browser does not seem to support HTML5 canvas.
-                            </canvas>
-                        </section>
-
-                        <section>
-                            <canvas ref={this.drawSecondCanvas}>
-                                Your browser does not seem to support HTML5 canvas.
-                            </canvas>
-                        </section>
-
                         <section>
                             <canvas ref={this.drawThirdCanvas}>
                                 Your browser does not seem to support HTML5 canvas.
@@ -207,6 +190,22 @@ class App extends Component {
                             >
                                 Press here to {(this.state.rectanglesAnimationStart) ? 'stop' : 'start'} the animation
                             </Button>
+                        </section>
+
+                        <section>
+                            <canvas ref={this.drawSecondCanvas}>
+                                Your browser does not seem to support HTML5 canvas.
+                            </canvas>
+                        </section>
+
+                        <section>
+                            <canvas ref={this.drawingCanvas}>
+                                Your browser does not seem to support HTML5 canvas.
+                            </canvas>
+                        </section>
+
+                        <section>
+                            {this.state.errorMessage ? <p>{this.state.errorMessage}</p> : animationBlock}
                         </section>
                     </main>
                 </div>
