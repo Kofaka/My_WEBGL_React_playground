@@ -1,5 +1,6 @@
 import React, {Component} from 'react';
 import * as THREE from 'three';
+import GLTFLoader from 'three-gltf-loader';
 
 class ThreeJsModel extends Component {
     constructor(props) {
@@ -10,24 +11,27 @@ class ThreeJsModel extends Component {
         this.scene = new THREE.Scene();
 
         this.camera = new THREE.PerspectiveCamera(75, width / height, 0.1, 1000);
-        this.camera.position.set(0, 0, 100);
+        this.camera.position.set(0, 0, 45);
         this.camera.lookAt(0, 0, 0);
 
-        this.renderer = new THREE.WebGLRenderer({alpha: true});
+        this.renderer = new THREE.WebGLRenderer({antialias: true});
+        this.renderer.setPixelRatio(window.devicePixelRatio);
         this.renderer.setSize(width, height);
         this.renderer.setClearColor(0x7812d6, 1);
-
-        this.sphereToRotate = {};
+        this.renderer.gammaInput = true;
+        this.renderer.gammaOutput = true;
 
         this.animate = this.animate.bind(this);
         this.addManyLights = this.addManyLights.bind(this);
-        this.addTexturedSphere = this.addTexturedSphere.bind(this);
+        this.addGLTFModel = this.addGLTFModel.bind(this);
     }
 
     componentDidMount() {
         this.threeJsModel.appendChild(this.renderer.domElement);
         this.addManyLights();
-        this.addTexturedSphere();
+        this.addGLTFModel();
+
+        this.animate();
     }
 
     addManyLights() {
@@ -65,36 +69,35 @@ class ThreeJsModel extends Component {
         });
     }
 
-    addTexturedSphere() {
-        // Add 'crossOrigin' tu turn on ability to use external link to to textures
-        THREE.ImageUtils.crossOrigin = true;
-        const textureLoader = new THREE.TextureLoader();
-        textureLoader.crossOrigin = true;
+    addGLTFModel() {
+        const path = './rank_3_police_unit/textures';
+        const format = '.png';
+        const envMap = new THREE.CubeTextureLoader().load([
+            `${path}posx${format}`, `${path}negx${format}`,
+            `${path}posy${format}`, `${path}negy${format}`,
+            `${path}posz${format}`, `${path}negz${format}`,
+        ]);
 
-        let material = null;
-        const geometry = new THREE.SphereGeometry(24, 32, 32);
-        const color = new THREE.Color('#009900');
+        this.scene.background = envMap;
 
-        textureLoader.load(
-            './rank_3_police_unit/textures/ctrl_eye_baseColor.png',
-            texture => {
-                texture.wrapS = texture.wrapT = THREE.RepeatWrapping;
-                texture.repeat.set(2, 2);
-                material = new THREE.MeshPhongMaterial({color: color.getHex(), bumpMap: texture});
-                this.sphereToRotate = new THREE.Mesh(geometry, material);
-                this.scene.add(this.sphereToRotate);
-                this.camera.updateProjectionMatrix();
-                this.animate();
+        const light = new THREE.HemisphereLight(0xbbbbff, 0x444422);
+        light.position.set(0, 1, 0);
+        this.scene.add(light);
+
+        const loader = new GLTFLoader();
+        loader.load(
+            './rank_3_police_unit/scene.gltf',
+            gltf => {
+                gltf.scene.traverse(child => child.isMesh && child.material.envMap);
+                this.scene.add(gltf.scene);
             },
             xhr => console.log(xhr),
-            error => console.log(error),
+            error => console.error(error),
         );
     }
 
     animate() {
         requestAnimationFrame(this.animate);
-        this.sphereToRotate.rotation.x += 0.01;
-        this.sphereToRotate.rotation.y -= 0.01;
 
         this.renderer.render(this.scene, this.camera);
     }
